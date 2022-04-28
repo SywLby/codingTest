@@ -1,13 +1,12 @@
-package RequirementBusinessImpl;
+package code;
 
-import IRequirementBusiness.IRequirementBusiness;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-public class RequirementBusiness implements IRequirementBusiness {
+public class ReplaceThreeTimesChar {
 
     private final static String UNDER_LINE = "_";
 
@@ -20,21 +19,21 @@ public class RequirementBusiness implements IRequirementBusiness {
 
     private Map<String, Integer> isExistsOverThreeTimesCharMap = new HashMap<>();
 
+
     /**
-     * requirementone（把连续出现3次以上的字符进行删除）
+     * replaceThreeTimesChar（把连续出现3次以上的字符，使用该字符在字母表中的上一个字符进行代替，若连续出现的是啊a，则删除）
      *
      * @param inputString String
      * @return outputString String
      */
-    @Override
-    public String requirementOne(String inputString) {
+    public String replaceThreeTimesChar(String inputString) {
         inputString = inputString.trim();
         System.out.println("Input:" + inputString);
         System.out.println("OutPut:");
         if (StringUtils.isNotBlank(inputString) && inputString.length() > 2) {
             String[] strs = getStrs(inputString);
             // 处理超过连续出现3次以上的字符的集合
-            String outPutResult = dealWithThreeTimeChar(strs, inputString);
+            String outPutResult = replaceOverThreeTimeChar(strs, inputString);
             return outPutResult;
         }else {
             System.out.println(inputString);
@@ -55,138 +54,10 @@ public class RequirementBusiness implements IRequirementBusiness {
 
     /**
      *
-     * @param strs String[]输入的字段转化成的数组
-     * @param inputString String
-     * @return
+     * @param strs 原始字符串数组
+     * @param inputString 原始输入的字符串
+     * @return String 最终输出结果
      */
-    private String dealWithThreeTimeChar(String[] strs, String inputString) {
-        Stack<String> strStack = new Stack<>();
-        Stack<Integer> numStack = new Stack<>();
-        String result = new String();
-        Integer lastOne = strs.length - 1;
-        for (int i = 0;i<strs.length;i++) {
-            if (strStack.empty()) {
-                strStack.push(strs[i]);
-                if(numStack.empty()) {
-                    numStack.push(1);
-                }
-                continue;
-            }
-            if (strStack.peek().equals(strs[i])) {
-                if (numStack.peek() != null) {
-                    int nowNum = numStack.pop();
-                    numStack.push(nowNum+1);
-                }
-                // 处理lastOne的场景
-                result = dealLastOne(strs, i, lastOne, strStack, numStack);
-                continue;
-            }
-
-            if (!strStack.peek().equals(strs[i]) && numStack.peek() >= 3) {
-                String lastStr = strStack.pop();
-                numStack.pop();
-                outPutAfterPop(strs, i, strStack, numStack, lastStr);
-                if (!strStack.empty() && strStack.peek().equals(strs[i])) {
-                    if (numStack.peek() != null) {
-                        int nowNum = numStack.pop();
-                        numStack.push(nowNum+1);
-                    }
-                    // 如果此时已经是最后一个，则需要判断栈中顶元素是否超过3个
-                    result = dealLastOne(strs ,i , lastOne, strStack, numStack);
-                    continue;
-                } else {
-                    strStack.push(strs[i]);
-                    numStack.push(1);
-                    // 如果此时已经是最后一个，则需要判断栈中顶元素是否超过3个
-                    result = dealLastOne(strs ,i , lastOne, strStack, numStack);
-                    continue;
-                }
-            }else if (!strStack.peek().equals(strs[i]) && numStack.peek() < 3) {
-                strStack.push(strs[i]);
-                numStack.push(1);
-                if (lastOne.equals(i)) {
-                    result = showTheLastResult(strStack, numStack);
-                    return result;
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private String outPutAfterPop(String[] str, int i, Stack<String> strStack, Stack<Integer> numStack, String lastStr) {
-        StringBuffer tempBuffer = new StringBuffer();
-        Stack<String> tempStrStack = (Stack)strStack.clone();
-        Stack<Integer> tempNumStack = (Stack)numStack.clone();
-        getBufferFromStack(tempBuffer, tempStrStack, tempNumStack);
-        // 栈顶先出所以需要反转
-        tempBuffer.reverse();
-        if (i != str.length - 1 && !lastStr.equals(str[i])) {
-            for (int j = i; j < str.length; j++) {
-                tempBuffer.append(str[j]);
-            }
-        }
-        System.out.println(tempBuffer);
-        return tempBuffer.toString();
-    }
-
-    private void getBufferFromStack(StringBuffer tempBuffer, Stack<String> tempStrStack, Stack<Integer> tempNumStack) {
-        if (!tempStrStack.empty()) {
-            int stackSize = tempStrStack.size();
-            for (int m = 0; m < stackSize; m++) {
-                String tempStrString = tempStrStack.pop();
-                if (!tempNumStack.empty()) {
-                    int loopNum = tempNumStack.pop();
-                    for (int n = 0; n < loopNum; n++) {
-                        tempBuffer.append(tempStrString);
-                    }
-                }
-            }
-        }
-    }
-
-    private String showTheLastResult(Stack<String> strStack, Stack<Integer> numStack) {
-       StringBuffer stringBuffer = new StringBuffer();
-       getBufferFromStack(stringBuffer, strStack, numStack);
-        System.out.println(stringBuffer);
-        return stringBuffer.reverse().toString();
-    }
-
-    private String dealLastOne(String[] strs, int i, Integer lastOne, Stack<String> strStack, Stack<Integer> numStack) {
-        if (lastOne.equals(i)) {
-           if(!strStack.empty() && !numStack.empty() && numStack.peek() >= 3) {
-               String lastStr = strStack.pop();
-               numStack.pop();
-               return outPutAfterPop(strs, i, strStack, numStack, lastStr);
-           }else {
-               return showTheLastResult(strStack, numStack);
-           }
-        }
-        return "";
-    }
-
-    /**
-     * requirementTwo（把连续出现3次以上的字符，使用该字符在字母表中的上一个字符进行代替，若连续出现的是啊a，则删除）
-     *
-     * @param inputString String
-     * @return outputString String
-     */
-    @Override
-    public String requirementTwo(String inputString) {
-        inputString = inputString.trim();
-        System.out.println("Input:" + inputString);
-        System.out.println("OutPut:");
-        if (StringUtils.isNotBlank(inputString) && inputString.length() > 2) {
-            String[] strs = getStrs(inputString);
-            // 处理超过连续出现3次以上的字符的集合
-            String outPutResult = replaceOverThreeTimeChar(strs, inputString);
-            return outPutResult;
-        }else {
-            System.out.println(inputString);
-            return inputString;
-        }
-    }
-
     private String replaceOverThreeTimeChar(String[] strs, String inputString) {
         Stack<String> strStack = new Stack<>();
         String outputResult = new String(inputString);
@@ -232,6 +103,12 @@ public class RequirementBusiness implements IRequirementBusiness {
         return outputResult;
     }
 
+    /**
+     *  获取栈顶元素中的字符串
+     *
+     * @param strStack 栈
+     * @return String 栈顶元素中的字符串
+     */
     private String getStrStackString(Stack<String> strStack) {
         if (!strStack.empty()) {
             String strAndNum = strStack.peek();
@@ -241,6 +118,12 @@ public class RequirementBusiness implements IRequirementBusiness {
         return "";
     }
 
+    /**
+     * 获取栈顶元素中的数量
+     *
+     * @param strStack 栈
+     * @return Integer 栈顶元素中的数量
+     */
     private Integer getStrStackNum(Stack<String> strStack) {
         if (!strStack.empty()) {
             String strAndNum = strStack.peek();
@@ -250,6 +133,12 @@ public class RequirementBusiness implements IRequirementBusiness {
         return 0;
     }
 
+    /**
+     *  处理数量累计
+     *
+     * @param strStack 栈
+     * @param existsNum 已存在的数量
+     */
     private void dealWithAddNum(Stack<String> strStack, Integer existsNum) {
         if (!strStack.empty()) {
             String strAndNum = strStack.pop();
@@ -259,6 +148,16 @@ public class RequirementBusiness implements IRequirementBusiness {
         }
     }
 
+    /**
+     * 替换后的字符串
+     *
+     * @param strStack 栈
+     * @param needReplaceNum 需要替换掉的字符串
+     * @param isLastOne 是否最后一个字符
+     * @param strs 原始字符串数组
+     * @param index 当前下标
+     * @return String 替换后的字符串
+     */
     private String strAfterReplace(Stack<String> strStack, Integer needReplaceNum, boolean isLastOne, String[] strs, int index) {
         String str = strStack.pop().split(UNDER_LINE)[0];
         String beforeStrChar = getBeforeStrChar(str);
@@ -275,6 +174,12 @@ public class RequirementBusiness implements IRequirementBusiness {
         return strAfterReplace;
     }
 
+    /**
+     * 获取需要替换的字符的前一个字符
+     *
+     * @param str 当前字符
+     * @return String 前一个字符
+     */
     private String getBeforeStrChar(String str) {
         if (str.equals("a")) {
             return "";
@@ -286,6 +191,13 @@ public class RequirementBusiness implements IRequirementBusiness {
         }
     }
 
+    /**
+     * 获取需要替换的字符串
+     *
+     * @param str 需要被替换的字符
+     * @param needReplaceNum 需要被替换的字符的数量
+     * @return String 替换的字符串
+     */
     private String getReplaceString(String str, Integer needReplaceNum) {
         StringBuffer stringBuffer = new StringBuffer();
         for (int i = 0;i<needReplaceNum; i++) {
@@ -294,6 +206,17 @@ public class RequirementBusiness implements IRequirementBusiness {
         return stringBuffer.toString();
     }
 
+    /**
+     *  获取替换后的字符串
+     *
+     * @param strStack 栈
+     * @param isLastOne 是否最后一个字符
+     * @param strs 原始数组
+     * @param index 当前下标
+     * @param beforeStrChar 需要被替换的字符前一个字符
+     * @param lastStr 栈顶刚取出的元素中的字符串结果
+     * @return String 替换后的结果
+     */
     private String getStrAfterReplace(Stack<String> strStack, boolean isLastOne, String[] strs, int index, String beforeStrChar, String lastStr) {
         StringBuffer stringBuffer = new StringBuffer();
         Stack<String> tempStrStack = (Stack)strStack.clone();
