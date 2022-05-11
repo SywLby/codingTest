@@ -48,8 +48,8 @@ public class DeleteThreeTimesChar {
     private String dealWithThreeTimeChar(String[] strs, String inputString) {
         Stack<String> strStack = new Stack<>();
         Stack<Integer> numStack = new Stack<>();
-        String result = new String();
-        Integer lastOne = strs.length - 1;
+        String result = new String(inputString);
+        boolean havenDealWithDelete = false;
         for (int i = 0;i<strs.length;i++) {
             if (strStack.empty()) {
                 strStack.push(strs[i]);
@@ -62,39 +62,27 @@ public class DeleteThreeTimesChar {
                 if (numStack.peek() != null) {
                     int nowNum = numStack.pop();
                     numStack.push(nowNum+1);
+                    if (i == strs.length-1 && numStack.peek() >= 3) {
+                        numStack.pop();
+                        result = dealDeleteChar(strs, i, strStack, numStack, strStack.pop());
+                        havenDealWithDelete = true;
+                    }
                 }
-                // 处理lastOne的场景
-                result = dealLastOne(strs, i, lastOne, strStack, numStack);
                 continue;
             }
 
             if (!strStack.peek().equals(strs[i]) && numStack.peek() >= 3) {
-                String lastStr = strStack.pop();
                 numStack.pop();
-                outPutAfterPop(strs, i, strStack, numStack, lastStr);
-                if (!strStack.empty() && strStack.peek().equals(strs[i])) {
-                    if (numStack.peek() != null) {
-                        int nowNum = numStack.pop();
-                        numStack.push(nowNum+1);
-                    }
-                    // 如果此时已经是最后一个，则需要判断栈中顶元素是否超过3个
-                    result = dealLastOne(strs ,i , lastOne, strStack, numStack);
-                    continue;
-                } else {
-                    strStack.push(strs[i]);
-                    numStack.push(1);
-                    // 如果此时已经是最后一个，则需要判断栈中顶元素是否超过3个
-                    result = dealLastOne(strs ,i , lastOne, strStack, numStack);
-                    continue;
-                }
+                result = dealDeleteChar(strs, i, strStack, numStack, strStack.pop());
+                havenDealWithDelete = true;
+                break;
             }else if (!strStack.peek().equals(strs[i]) && numStack.peek() < 3) {
                 strStack.push(strs[i]);
                 numStack.push(1);
-                if (lastOne.equals(i)) {
-                    result = showTheLastResult(strStack, numStack);
-                    return result;
-                }
             }
+        }
+        if (StringUtils.isNotBlank(result) && (havenDealWithDelete || !numStack.empty() && numStack.peek() >= 3)) {
+            result = dealWithThreeTimeChar(getStrs(result), result);
         }
 
         return result;
@@ -107,21 +95,22 @@ public class DeleteThreeTimesChar {
      * @param i 当前循环下标
      * @param strStack 字符串栈
      * @param numStack 对应数量栈
-     * @param lastStr 上一个从栈去除的字符
+     * @param lastStr 上次在栈顶取出的元素
      * @return tempBuffer.toString() 处理后的字符串结果
      */
-    private String outPutAfterPop(String[] str, int i, Stack<String> strStack, Stack<Integer> numStack, String lastStr) {
+    private String dealDeleteChar(String[] str, int i, Stack<String> strStack, Stack<Integer> numStack, String lastStr) {
         StringBuffer tempBuffer = new StringBuffer();
         Stack<String> tempStrStack = (Stack)strStack.clone();
         Stack<Integer> tempNumStack = (Stack)numStack.clone();
         getBufferFromStack(tempBuffer, tempStrStack, tempNumStack);
         // 栈顶先出所以需要反转
         tempBuffer.reverse();
-        if (i != str.length - 1 && !lastStr.equals(str[i])) {
+        if (i != str.length -1 || (i == str.length - 1 && !lastStr.equals(str[i]))) {
             for (int j = i; j < str.length; j++) {
                 tempBuffer.append(str[j]);
             }
         }
+
         System.out.println(tempBuffer);
         return tempBuffer.toString();
     }
@@ -146,42 +135,5 @@ public class DeleteThreeTimesChar {
                 }
             }
         }
-    }
-
-    /**
-     * 输出最后结果
-     *
-     * @param strStack 字符串栈
-     * @param numStack 数量栈
-     * @return stringBuffer.reverse().toString() String
-     */
-    private String showTheLastResult(Stack<String> strStack, Stack<Integer> numStack) {
-        StringBuffer stringBuffer = new StringBuffer();
-        getBufferFromStack(stringBuffer, strStack, numStack);
-        System.out.println(stringBuffer);
-        return stringBuffer.reverse().toString();
-    }
-
-    /**
-     *  处理是最后一个字符的场景
-     *
-     * @param strs 原始字符串数组
-     * @param i 当前下标
-     * @param lastOne 数组最后一个
-     * @param strStack 字符串栈
-     * @param numStack 数量栈
-     * @return String
-     */
-    private String dealLastOne(String[] strs, int i, Integer lastOne, Stack<String> strStack, Stack<Integer> numStack) {
-        if (lastOne.equals(i)) {
-            if(!strStack.empty() && !numStack.empty() && numStack.peek() >= 3) {
-                String lastStr = strStack.pop();
-                numStack.pop();
-                return outPutAfterPop(strs, i, strStack, numStack, lastStr);
-            }else {
-                return showTheLastResult(strStack, numStack);
-            }
-        }
-        return "";
     }
 }

@@ -34,6 +34,9 @@ public class ReplaceThreeTimesChar {
             String[] strs = getStrs(inputString);
             // 处理超过连续出现3次以上的字符的集合
             String outPutResult = replaceOverThreeTimeChar(strs, inputString);
+            if (outPutResult.equals(inputString)) {
+                System.out.println("no over three times char was replaced");
+            }
             return outPutResult;
         }else {
             System.out.println(inputString);
@@ -72,21 +75,18 @@ public class ReplaceThreeTimesChar {
             boolean isLastOne = lastOne.equals(i);
             if (getStrStackString(strStack).equals(strs[i])) {
                 Integer existsNum = getStrStackNum(strStack);
-                if (isLastOne && existsNum+1 >= 3) {
-                    outputResult = strAfterReplace(strStack, existsNum+1, isLastOne, strs, i);
+                Integer addValue = existsNum + 1;
+                strStack.pop();
+                strStack.push(strs[i]+ UNDER_LINE + addValue);
+                if (isLastOne && addValue >= 3) {
+                    outputResult = strAfterReplace(strStack, addValue, isLastOne, strs, i);
                     break;
-                }else {
-                    dealWithAddNum(strStack,existsNum);
-                    continue;
                 }
+                continue;
             }
 
             if (!getStrStackString(strStack).equals(strs[i]) && getStrStackNum(strStack) >= 3) {
-                if (isLastOne) {
-                    outputResult = strAfterReplace(strStack, getStrStackNum(strStack), isLastOne, strs, i);
-                }else {
-                    outputResult = strAfterReplace(strStack, getStrStackNum(strStack), isLastOne, strs, i);
-                }
+                outputResult = strAfterReplace(strStack, getStrStackNum(strStack), isLastOne, strs, i);
                 break;
             }else if (!getStrStackString(strStack).equals(strs[i]) && getStrStackNum(strStack) <= 3){
                 strStack.push(strs[i] + UNDER_LINE + 1);
@@ -96,9 +96,6 @@ public class ReplaceThreeTimesChar {
 
         if (MAP_VALUE_TRUE.equals(isExistsOverThreeTimesCharMap.get(MAP_KEY))) {
             outputResult = replaceOverThreeTimeChar(getStrs(outputResult), outputResult);
-        }
-        if (outputResult.equals(inputString)) {
-            System.out.println("no over three times char was replaced");
         }
         return outputResult;
     }
@@ -131,21 +128,6 @@ public class ReplaceThreeTimesChar {
             return num;
         }
         return 0;
-    }
-
-    /**
-     *  处理数量累计
-     *
-     * @param strStack 栈
-     * @param existsNum 已存在的数量
-     */
-    private void dealWithAddNum(Stack<String> strStack, Integer existsNum) {
-        if (!strStack.empty()) {
-            String strAndNum = strStack.pop();
-            String str = strAndNum.split(UNDER_LINE)[0];
-            Integer tempNum = existsNum + 1;
-            strStack.push(str + UNDER_LINE + tempNum);
-        }
     }
 
     /**
